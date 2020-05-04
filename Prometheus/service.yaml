@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+  labels:
+    app: prometheus
+  name: prometheus-web
+  namespace: monitoring-backend
+spec:
+  ports:
+  - name: web
+    port: 80
+    protocol: TCP
+    targetPort: 9090
+  selector:
+    app: prometheus
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+  labels:
+    app: prometheus
+    k8s-app: prometheus
+  name: prometheus-discovery
+  namespace: monitoring-backend
+spec:
+  ports:
+  - name: prometheus
+    port: 9090
+    protocol: TCP
+    targetPort: 9090
+  selector:
+    app: prometheus
+  sessionAffinity: None
+  type: ClusterIP
