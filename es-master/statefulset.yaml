@@ -1,0 +1,76 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  namespace: efk-logs
+  name: elasticsearch-master
+  labels:
+    app: elasticsearch
+    role: master
+spec:
+  serviceName: "elasticsearch-master"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: elasticsearch-master
+        role: master
+    spec:
+      containers:
+      - name: elasticsearch-master
+        image: docker.repository.bog.ge/elasticsearch/elasticsearch:7.3.0
+        env:
+        - name: CLUSTER_NAME
+          value: elasticsearch
+        - name: NODE_NAME
+          value: elasticsearch-master
+        - name: NODE_LIST
+          value: elasticsearch-master,elasticsearch-data,elasticsearch-client
+        - name: MASTER_NODES
+          value: elasticsearch-master
+        - name: "ES_JAVA_OPTS"
+          value: "-Xms300m -Xmx300m"
+        ports:
+        - containerPort: 9300
+          name: transport
+        volumeMounts:
+        - name: config
+          mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+          readOnly: true
+          subPath: elasticsearch.yml
+        - name: elasticsearch-master-persistent-storage
+          mountPath: /usr/share/elasticsearch/data
+      nodeSelector:
+          type: Infra
+      volumes:
+      - name: config
+        configMap:
+          name: elasticsearch-master-config
+      initContainers:
+      - name: increase-vm-max-map
+        image: docker.repository.bog.ge/busybox
+        command: ["sysctl", "-w", "vm.max_map_count=262144"]
+        securityContext:
+          privileged: true
+      - name: create 
+        image: docker.repository.bog.ge/busybox:1.28 
+        command: ['mkdir', '/usr/share/elasticsearch/data/', '-p']   
+        volumeMounts: 
+        - mountPath: /usr/share/elasticsearch/data 
+          name: elasticsearch-master-persistent-storage 
+      - name: file-permissions 
+        image: docker.repository.bog.ge/busybox:1.28 
+        command: ['chown', '-R', '1000:1000', '/usr/share/elasticsearch/'] 
+        volumeMounts: 
+        - mountPath: /usr/share/elasticsearch/data 
+          name: elasticsearch-master-persistent-storage           
+  volumeClaimTemplates:
+  - metadata:
+      name: elasticsearch-master-persistent-storage
+      annotations:
+        field.cattle.io/creatorId: user-blcb2
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: thin
+      resources:
+        requests:
+          storage: 1Gi
