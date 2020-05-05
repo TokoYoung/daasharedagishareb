@@ -9,6 +9,6 @@ data:
     - name: my-ip-space
       protocol: layer2
       addresses:
-              #      - 10.10.10.10/32
-      - 192.168.49.222/32
-      - 192.168.49.209/32
+              ###Put ip address range####       
+      - 192.168.49.222- 192.168.49.209
+
