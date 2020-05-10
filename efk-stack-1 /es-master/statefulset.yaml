@@ -56,7 +56,9 @@ spec:
         command: ['mkdir', '/usr/share/elasticsearch/data/', '-p']   
         volumeMounts: 
         - mountPath: /usr/share/elasticsearch/data 
-          name: elasticsearch-master-persistent-storage 
+          name: elasticsearch-master-persistent-
+          
+          
       - name: file-permissions 
         image: docker.repository.bog.ge/busybox:1.28 
         command: ['chown', '-R', '1000:1000', '/usr/share/elasticsearch/'] 
@@ -70,7 +72,7 @@ spec:
         field.cattle.io/creatorId: user-blcb2
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: thin
+      storageClassName: local
       resources:
         requests:
           storage: 1Gi

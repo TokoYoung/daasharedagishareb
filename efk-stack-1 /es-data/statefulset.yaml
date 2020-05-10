@@ -70,7 +70,7 @@ spec:
         field.cattle.io/creatorId: user-blcb2
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: thin
+      storageClassName: local
       resources:
         requests:
           storage: 10Gi
